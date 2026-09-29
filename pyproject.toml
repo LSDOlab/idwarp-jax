@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "idwarp-jax"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Differentiable inverse-distance-weighted volume mesh deformation in JAX"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -16,3 +16,5 @@ dependencies = [
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.dynamic]
+version = {attr = "idwarp_jax.__version__"}
