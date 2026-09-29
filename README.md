@@ -1,6 +1,13 @@
 # idwarp-jax
 
-A JAX implementation of inverse-distance-weighted volume-mesh deformation.
+IDWarp-JAX is a JAX implementation of
+[IDWarp](https://github.com/mdolab/idwarp), MDO Lab's
+inverse-distance-weighted volume-mesh deformation package.
+
+The original method and software are described in N. Secco, G. K. W. Kenway,
+P. He, C. A. Mader, and J. R. R. A. Martins, “Efficient Mesh Generation and
+Deformation for Aerodynamic Shape Optimization,” *AIAA Journal*, 2021,
+[doi:10.2514/1.J059491](https://doi.org/10.2514/1.J059491).
 
 ## Installation
 

@@ -1,9 +1,16 @@
 # IDWarp-JAX
 
-IDWarp-JAX propagates prescribed boundary motion through a volume mesh using
-inverse-distance-weighted interpolation. Its JAX implementation provides both
-the deformed volume coordinates and a reverse-mode derivative for propagating
-volume sensitivities back to the surface and flow inputs.
+IDWarp-JAX is a JAX implementation of
+[IDWarp](https://github.com/mdolab/idwarp), MDO Lab's mesh deformation
+package. It propagates prescribed boundary motion through a volume mesh using
+inverse-distance-weighted interpolation and provides both the deformed volume
+coordinates and a reverse-mode derivative for propagating volume
+sensitivities back to the surface and flow inputs.
+
+The original method and software are described in N. Secco, G. K. W. Kenway,
+P. He, C. A. Mader, and J. R. R. A. Martins, “Efficient Mesh Generation and
+Deformation for Aerodynamic Shape Optimization,” *AIAA Journal*, 2021,
+[doi:10.2514/1.J059491](https://doi.org/10.2514/1.J059491).
 
 ## Workflow
 
