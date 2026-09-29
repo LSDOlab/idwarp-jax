@@ -17,17 +17,20 @@ from idwarp_jax.driver import deform_mesh, make_deformation_function
 from idwarp_jax.vol_warper import build_volume_pts_func, make_deformer
 ```
 
-## Simple example
+## Tutorial
 
-The half-cube example stretches the mesh by 2x in the x-direction, rotates it
-10 degrees about the y-axis, checks its derivatives, and saves a PNG:
+The [cube-in-farfield deformation tutorial](tutorials/basic_tutorials/cube_stretch.ipynb)
+walks through mesh construction, deformation, reverse-derivative verification,
+and 2D/3D visualization.
+
+To run it locally, launch Jupyter from the repository root:
 
 ```bash
-python simple_example/cube_stretch.py
+jupyter lab tutorials/basic_tutorials/cube_stretch.ipynb
 ```
 
 Select the numerical precision and JAX device by changing `DTYPE` and
-`DEVICE` near the top of the script.
+`DEVICE` near the top of the notebook.
 
 ```python
 DTYPE = "f64"
