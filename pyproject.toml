@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "idwarp-jax"
+version = "0.1.0"
+description = "Differentiable inverse-distance-weighted volume mesh deformation in JAX"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "jax",
+  "numpy",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
