@@ -7,6 +7,7 @@ name = "idwarp-jax"
 dynamic = ["version"]
 description = "Differentiable inverse-distance-weighted volume mesh deformation in JAX"
 readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.9"
 dependencies = [
   "jax",

@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 project = "idwarp_jax"
-copyright = "2026, Mark"
+copyright = "2026, The Regents of the University of California"
 author = "Mark"
 version = "0.1"
 
