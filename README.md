@@ -9,6 +9,8 @@ P. He, C. A. Mader, and J. R. R. A. Martins, “Efficient Mesh Generation and
 Deformation for Aerodynamic Shape Optimization,” *AIAA Journal*, 2021,
 [doi:10.2514/1.J059491](https://doi.org/10.2514/1.J059491).
 
+IDWarp-JAX is independently developed and maintained by LSDO Lab and is not officially affiliated with or endorsed by MDO Lab.
+
 Link to documentation: https://idwarp-jax.readthedocs.io/en/latest/
 
 ## Installation
