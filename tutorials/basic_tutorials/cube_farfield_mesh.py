@@ -12,11 +12,24 @@ def make_cube_farfield_mesh(
     cube_half=10.0,
     farfield=100.0,
     dtype=np.float32,
+    *,
+    coordinates=None,
 ):
-    """Return the warper mesh and plotting metadata for the cube example."""
-    x = np.linspace(-farfield, farfield, nx + 1, dtype=dtype)
-    y = np.linspace(0.0, farfield, ny + 1, dtype=dtype)
-    z = np.linspace(-farfield, farfield, nz + 1, dtype=dtype)
+    """Return the cube mesh; optional (x, y, z) axes override grid counts."""
+    if coordinates is None:
+        x = np.linspace(-farfield, farfield, nx + 1, dtype=dtype)
+        y = np.linspace(0.0, farfield, ny + 1, dtype=dtype)
+        z = np.linspace(-farfield, farfield, nz + 1, dtype=dtype)
+    else:
+        x, y, z = (np.asarray(axis, dtype=dtype) for axis in coordinates)
+        for axis, lower in ((x, -farfield), (y, 0.0), (z, -farfield)):
+            if (axis.ndim != 1 or len(axis) < 2
+                    or not np.all(np.isfinite(axis))
+                    or not np.all(np.diff(axis) > 0)
+                    or not np.isclose(axis[0], lower)
+                    or not np.isclose(axis[-1], farfield)):
+                raise ValueError("coordinate axes must increase across the full domain")
+        nx, ny, nz = len(x) - 1, len(y) - 1, len(z) - 1
     for name, coordinates in (("x", x), ("y", y), ("z", z)):
         if not np.any(np.isclose(coordinates, cube_half)):
             raise ValueError(

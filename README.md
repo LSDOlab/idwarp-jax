@@ -1,5 +1,7 @@
 # idwarp-jax
 
+[![tests](https://github.com/LSDOlab/idwarp-jax/actions/workflows/tests.yml/badge.svg)](https://github.com/LSDOlab/idwarp-jax/actions/workflows/tests.yml)
+
 IDWarp-JAX is a JAX implementation of
 [IDWarp](https://github.com/mdolab/idwarp), MDO Lab's
 inverse-distance-weighted volume-mesh deformation package.
@@ -46,4 +48,13 @@ Select the numerical precision and JAX device by changing `DTYPE` and
 ```python
 DTYPE = "f64"
 DEVICE = "gpu"
+```
+
+## Tests
+
+Install the test dependencies and run the small CPU suite:
+
+```bash
+python -m pip install -e ".[test]"
+python -m pytest -q
 ```
