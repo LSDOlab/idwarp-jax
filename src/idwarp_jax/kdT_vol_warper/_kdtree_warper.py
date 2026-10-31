@@ -132,10 +132,10 @@ def make_kdtree_deformer(
     reference_volume_points = np.asarray(reference_volume_points)
     jax_dtype = jnp.asarray(reference_volume_points).dtype
     host_dtype = np.dtype(jax_dtype)
-    points = np.asarray(mesh["points"], dtype=host_dtype)
-    reference_volume_points = np.asarray(
-        reference_volume_points, dtype=host_dtype
-    )
+    # Preserve reference coordinates and array identity for the public API and
+    # host-side tree/routing preprocessing. Cast only calculation buffers to the
+    # selected JAX dtype (which may be float32 even for float64 NumPy inputs).
+    points = np.asarray(mesh["points"])
     if reference_volume_points.ndim != 2 or reference_volume_points.shape[1] != 3:
         raise ValueError("reference_volume_points must have shape (n, 3)")
     if route_cache not in {"none", "host"}:
@@ -150,7 +150,7 @@ def make_kdtree_deformer(
     global_conn = np.concatenate(wall_faces)
     wall_ids = np.unique(global_conn)
     conn = np.searchsorted(wall_ids, global_conn).astype(np.int32)
-    wall_points = np.asarray(points[wall_ids], dtype=host_dtype)
+    wall_points = np.asarray(points[wall_ids])
 
     Xs0 = jax.device_put(jnp.asarray(wall_points, dtype=jax_dtype), device)
     normal_topology = normal.prepare_normal_topology(conn, face_sizes)

@@ -142,3 +142,39 @@ def test_precision_and_routing_agree(deformers, other):
     for expected, actual in zip(*outputs):
         assert_allclose(actual, expected, rtol=2e-5, atol=2e-5)
 
+
+
+def test_float64_reference_with_x64_disabled():
+    # Non-binary-exact coordinates catch rounding in returned wall metadata;
+    # distinct volume storage also exercises the reference identity contract.
+    with jax.experimental.enable_x64(False):
+        mesh, _ = _tutorial.make_cube_farfield_mesh(
+            dtype=np.float64,
+            coordinates=([-100, -10, 0, 10, 100], [0, 10, 30, 100],
+                         [-100, -10, 0, 10, 100]),
+        )
+        mesh["points"][:, 0] += 0.1
+        reference = mesh["points"].copy()
+        original = reference.copy()
+        compute, reverse, aux = build_volume_pts_func(
+            mesh, reference, jax.devices("cpu")[0], return_aux=True,
+            print_timings=False, progress=False,
+        )
+        np.testing.assert_array_equal(aux["wall_points"],
+                                      mesh["points"][aux["wall_ids"]])
+        surface = aux["wall_points"].copy()
+        surface[:, 2] *= 1.01
+        warped = compute(surface, {"pitch": 0.0})
+        assert warped.dtype == np.float32
+        assert np.isfinite(warped).all()
+        seed = np.ones_like(warped)
+        d_surface, d_flow = reverse(surface, {"pitch": 0.0}, seed)
+        tangent = aux["kdtree"]["deform_jvp"](
+            surface, reference, 0.0, np.ones_like(surface), 0.0)
+        assert np.isfinite(d_surface).all()
+        assert np.isfinite(d_flow["pitch"]).all()
+        assert_allclose(np.sum(tangent * seed), np.sum(d_surface),
+                        rtol=2e-5, atol=2e-4)
+        np.testing.assert_array_equal(reference, original)
+        with pytest.raises(ValueError, match="fixed to the volume-point array"):
+            aux["deform"](surface, reference.copy(), 0.0)
