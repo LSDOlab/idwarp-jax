@@ -152,16 +152,41 @@ def make_kdtree_deformer(
     conn = np.searchsorted(wall_ids, global_conn).astype(np.int32)
     wall_points = np.asarray(points[wall_ids])
 
+    # Explicit caller-supplied trees/routes take precedence over disk caching.
+    cache_path = None
+    routes_cache_hit = False
+    cached_bundle = None
+    if tree is None and routes is None and cached_routes is not None:
+        cache_path = Path(cached_routes) / "routes.npz"
+        settings = {
+            "exact_y_symmetry": True, "LdefFact": float(LdefFact),
+            "bucket_size": int(bucket_size), "aExp": float(aExp),
+            "bExp": float(bExp), "alpha": float(alpha),
+            "err_tol": float(err_tol), "warp_eps": float(warp_eps),
+            "normal_eps": float(normal_eps), "preprocessing_dtype": host_dtype.str,
+        }
+        fingerprint = route_fingerprint(
+            reference_volume_points, wall_points, conn, face_sizes, settings,
+        )
+        cached_bundle = load_routes(cache_path, fingerprint)
+        routes_cache_hit = cached_bundle is not None
+        if routes_cache_hit:
+            tree, routes, surface_area, ldef = cached_bundle
+        if progress:
+            status = "loaded tree and routes" if routes_cache_hit else "missing or stale"
+            print(f"[setup] routes cache {status}: {cache_path}", flush=True)
+
     Xs0 = jax.device_put(jnp.asarray(wall_points, dtype=jax_dtype), device)
     normal_topology = normal.prepare_normal_topology(conn, face_sizes)
     normals0, Ai = normal.compute_node_normals_from_topology(
         Xs0, normal_topology, eps=normal_eps
     )
     normals0.block_until_ready()
-    surface_area = np.asarray(Ai, dtype=host_dtype)
-    Ldef0 = compute_idwarp_reference_length(Xs0)
-    Ldef0.block_until_ready()
-    ldef = float(np.asarray(Ldef0)) * float(LdefFact)
+    if not routes_cache_hit:
+        surface_area = np.asarray(Ai, dtype=host_dtype)
+        Ldef0 = compute_idwarp_reference_length(Xs0)
+        Ldef0.block_until_ready()
+        ldef = float(np.asarray(Ldef0)) * float(LdefFact)
 
     corner_mask = normal.detect_corner_nodes_from_topology(
         Xs0,
@@ -194,19 +219,6 @@ def make_kdtree_deformer(
         )
 
     routes_started = time.perf_counter()
-    cache_path = None
-    routes_cache_hit = False
-    if routes is None and cached_routes is not None:
-        cache_path = Path(cached_routes) / "routes.npz"
-        fingerprint = route_fingerprint(
-            reference_volume_points, wall_points, surface_area, tree,
-            (True, ldef, aExp, bExp, alpha, err_tol, warp_eps),
-        )
-        routes = load_routes(cache_path, fingerprint)
-        routes_cache_hit = routes is not None
-        if progress:
-            status = "loaded" if routes_cache_hit else "missing or stale"
-            print(f"[setup] routes cache {status}: {cache_path}", flush=True)
     if routes is None:
         if progress:
             print("[setup] computing fixed volume-point frontiers", flush=True)
@@ -225,7 +237,7 @@ def make_kdtree_deformer(
             progress=progress,
         )
         if cache_path is not None:
-            save_routes(cache_path, fingerprint, routes)
+            save_routes(cache_path, fingerprint, routes, tree, surface_area, ldef, settings)
             if progress:
                 print(f"[setup] saved routes cache: {cache_path}", flush=True)
     routes_seconds = time.perf_counter() - routes_started

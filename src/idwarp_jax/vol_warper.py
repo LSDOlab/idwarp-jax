@@ -253,7 +253,10 @@ def build_volume_pts_func(
     route_cache : {"host", "none"}, default="host"
         Keep expanded routing batches in host memory or rebuild them.
     cached_routes : path-like or None, default=None
-        Directory used to load and save compact routing data.
+        Directory used to load and save a versioned tree/routes bundle.
+        Reference coordinates, surface connectivity, routing settings and
+        effective preprocessing dtype must match. Older caches rebuild once;
+        computed floating-point intermediates are restored from the bundle.
     progress : bool, default=True
         Print preprocessing and cache progress.
 
