@@ -77,8 +77,12 @@ def test_effective_precision_invalidates_with_same_reference_arrays(tmp_path):
     mesh, volume = inputs()
     mesh['points'] = mesh['points'].astype(np.float64)
     volume = volume.astype(np.float64)
-    with jax.enable_x64(False):
+    previous = jax.config.x64_enabled
+    try:
+        jax.config.update('jax_enable_x64', False)
         assert not build(mesh, volume, tmp_path)[-1]['routes_cache_hit']
         assert build(mesh, volume, tmp_path)[-1]['routes_cache_hit']
-    with jax.enable_x64(True):
+        jax.config.update('jax_enable_x64', True)
         assert not build(mesh, volume, tmp_path)[-1]['routes_cache_hit']
+    finally:
+        jax.config.update('jax_enable_x64', previous)
